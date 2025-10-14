@@ -617,7 +617,32 @@
         <!--page content above-->
     </main>
     <!-- Sec Main -->
-    
+    <footer class="footer">
+        <div class="footer__inner d-flex flex-column align-items-center container">
+            <p>"To make a creative and connected community through art and gardens."</p>
+            <ul class="footer__inner__social d-flex">
+                <li class="footer__inner__social--item"><a class="d-flex flex-column align-items-center justify-content-center" href="http://www.facebook.com/PhilbrookMuseum" target="_blank"><i class="fa fa-facebook"></i></a></li>
+                <li class="footer__inner__social--item"><a class="d-flex flex-column align-items-center justify-content-center" href="https://twitter.com/Philbrook" target="_blank"><img src="https://philbrook.org/fa-content/themes/philbrook/img/icons/x-logo-white.png" width="60%" alt="X" /></a></li>
+                <li class="footer__inner__social--item"><a class="d-flex flex-column align-items-center justify-content-center" href="http://instagram.com/philbrookmuseum" target="_blank"><i class="fa fa-instagram"></i></a></li>
+                <li class="footer__inner__social--item"><a class="d-flex flex-column align-items-center justify-content-center" href="http://www.pinterest.com/philbrookmuseum/" target="_blank"><i class="fa fa-pinterest"></i></a></li>
+                <li class="footer__inner__social--item"><a class="d-flex flex-column align-items-center justify-content-center" href="https://www.youtube.com/@philbrookmuseumofart7076" target="_blank"><i class="fa fa-youtube"></i></a></li>
+                <li class="footer__inner__social--item"><a class="d-flex flex-column align-items-center justify-content-center" href="https://podcasts.apple.com/us/podcast/museum-confidential/id1294540142" target="_blank"><i class="fa fa-podcast"></i></a></li>
+            </ul>
+            <ul class="footer__inner__links">
+                <li class="footer__inner__links--item"><a href="/about-us">About Us</a></li>
+                <li class="footer__inner__links--item"><a href="https://philbrook.org/visit/memberships/">Join</a></li>
+                <li class="footer__inner__links--item"><a href="/contact">Contact</a></li>
+                <li class="footer__inner__links--item"><a href="https://tracking.wordfly.com/join/PhilbrookMuseum/">Newsletter</a></li>
+                <li class="footer__inner__links--item"><a href="/visit/careers/">Jobs</a></li>
+                <li class="footer__inner__links--item"><a href="/access">Accessibility</a></li>
+                <li class="footer__inner__links--item"><a href="https://my.philbrook.org/account/update?returnurl=%2faccount%2fupdate">My Account</a></li>
+            </ul>
+        </div>
+        <div class="footer__dark d-flex align-items-center">
+            <div class="footer__dark__text">© Philbrook Museum of Art</div>
+            <span id="nightmode"></span>
+        </div>
+    </footer>
     <!--template:footer-->
     <!-- Local JS -->
     <script type="text/javascript" src="/fa-content/themes/philbrook/assets/js/jquery.flip.min.js"></script>
@@ -681,6 +706,104 @@
                 })
             })
         }
+
+        function _createReciteButton() {
+            var buttonParentSelector = 'body';
+            var buttonContainer = document.createElement("a");
+            buttonContainer.setAttribute('href', '#launchRecite');
+            var buttonImage = document.createElement("img");
+            var buttonAlt = "Recite Me accessibility and Language Support";
+            var buttonTitle = "Launch Recite Me";
+
+            buttonContainer.setAttribute('id', 'reciteme-button');
+            buttonContainer.setAttribute('alt', buttonAlt);
+            buttonContainer.setAttribute('title', buttonTitle);
+            buttonContainer.setAttribute('role', 'button');
+            buttonImage.setAttribute('alt', buttonAlt);
+            buttonImage.setAttribute('title', buttonTitle);
+            buttonImage.setAttribute('src', buttonSrc);
+            buttonContainer.appendChild(buttonImage);
+            var buttonParent = document.querySelector(buttonParentSelector);
+            buttonParent.prepend(buttonContainer);
+            buttonContainer.addEventListener("click", function(e) {
+                e.preventDefault();
+                loadReciteService();
+                return false;
+            });
+
+            buttonContainer.addEventListener('mouseover', function() {
+                buttonImage.setAttribute('src', buttonSrcHover);
+            });
+
+            buttonContainer.addEventListener('mouseout', function() {
+                buttonImage.setAttribute('src', buttonSrc);
+            });
+            reciteMeButton = buttonContainer;
+            // Add CSS styling
+            var style = document.createElement('style');
+            style.innerHTML = `        #reciteme-button {            /* Button Styling and Placement */            background: #00344c;            width: 100px;            height: 100px;            bottom: 14px;            right: 14px;            position: fixed;            border-radius: 50%;            z-index: 100;            cursor: pointer;        }        #reciteme-button:hover {            /* Hover Color */            background: #e9322e;
+        }        #reciteme-button img {            /** Button Image Size */            width: 100px;            height: 100px;            position: absolute;            top: 50%;            left: 50%;            transform: translate(-50%, -50%);        }    `;
+            document.head.appendChild(style);
+        }
+
+        function loadReciteMe() {
+            "true" == _rc("Recite.Persist") && loadReciteService();
+            (autoLoad && "false" != _rc("Recite.Persist") || frag) && loadReciteService();
+
+            var reciteMeButtons = document.querySelectorAll("[href$='#reciteme']");
+            for (var i = 0; i < reciteMeButtons.length; i++) {
+                var reciteMeButton = reciteMeButtons[i];
+                if (reciteMeButton) {
+                    reciteMeButton.addEventListener("click", function() {
+                        // Sync the toolbar with the translate button:
+                        // we may need to store the page lang when recite is loaded
+                        // so that we can restore it when we close ...
+                        var storedLang = localStorage.getItem("user_lang");
+                        if (storedLang != undefined) {
+                            localStorage.setItem('launch_language', storedLang);
+                        }
+                        loadReciteService();
+                    });
+                }
+            }
+        }
+        if (document.addEventListener) {
+            document.addEventListener("DOMContentLoaded", function(event) {
+                loadReciteMe();
+            });
+        } else {
+            loadReciteMe();
+        }
+
+        function _reciteLoaded() {
+            function _syncLanguage() {
+                var lang = Recite.Preferences.get('language');
+                var storedLang = localStorage.getItem("user_lang");
+                if (lang != storedLang) {
+                    localStorage.setItem("user_lang", lang);
+                }
+            }
+
+            function _resetLang() {
+                //we should set the stored lang back to what it was when recite loaded..
+                var launchLang = localStorage.getItem('launch_language');
+                if (launchLang != undefined) {
+                    localStorage.setItem("user_lang", launchLang);
+                } else {
+                    localStorage.removeItem("user_lang");
+                }
+            }
+            Recite.Event.subscribe('Recite:disable', _resetLang);
+            if (document.getElementById("reciteme-button'")) {
+                documentgetElementById("reciteme-button'").remove()
+            };
+
+            if (reciteMeButton && reciteMeButton.parentNode) {
+                reciteMeButton.parentNode.removeChild(reciteMeButton);
+            }
+        }
+        var buttonSrc = 'https://philbrook.org/fa-content/uploads/Philbrook-Accessibility-Icon.png';
+        var reciteMeButton;
 
         function _createReciteButton() {
             var buttonParentSelector = 'body';
